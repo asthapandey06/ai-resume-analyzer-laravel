@@ -5,10 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreResumeRequest;
 
 use App\Models\Resume;
+use App\Services\ResumeService;
 use Illuminate\Http\Request;
 
 class ResumeController extends Controller
 {
+    public function __construct(private ResumeService $resumeService)
+    {
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -32,16 +37,7 @@ class ResumeController extends Controller
     {
         $file = $request->file('resume');
 
-        $path = $file->store('resumes', 'public');
-
-        $resume = Resume::create([
-            'original_name' => $file->getClientOriginalName(),
-            'stored_name'   => $file->hashName(),
-            'file_path'     => $path,
-            'mime_type'     => $file->getMimeType(),
-            'file_size'     => $file->getSize(),
-            'status'        => 'uploaded',
-        ]);
+        $resume = $this->resumeService->upload($file);
 
         return response()->json([
             'message' => 'Resume uploaded successfully.',

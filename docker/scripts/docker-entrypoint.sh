@@ -9,8 +9,8 @@ mkdir -p storage/framework/sessions
 mkdir -p storage/framework/views
 mkdir -p storage/logs
 
-chown -R www-data:www-data storage bootstrap/cache
-chmod -R 775 storage bootstrap/cache
+# chown -R www-data:www-data storage bootstrap/cache
+find storage bootstrap/cache -type d -exec chmod 775 {} \;
 
 
 # Run migrations if the RUN_MIGRATIONS environment variable is set to true
@@ -18,10 +18,10 @@ if [ "$RUN_MIGRATIONS" = "true" ]; then
     echo "Waiting for database..."
 
     # # Wait until database accepts connections
-    until php artisan db:show >/dev/null 2>&1
-    do
-        sleep 2
-    done
+    # until php artisan db:show >/dev/null 2>&1
+    # do
+    #     sleep 2
+    # done
 
     echo "Running migrations..."
     php artisan migrate --force

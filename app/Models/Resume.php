@@ -13,5 +13,6 @@ class Resume extends Model
         'mime_type',
         'file_size',
         'status',
+        'extracted_text',
     ];
 }

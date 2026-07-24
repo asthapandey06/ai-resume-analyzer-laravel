@@ -45,7 +45,6 @@ class StoreResumeRequest extends FormRequest
     }
     protected function failedValidation(Validator $validator)
     {
-        dd($validator->errors()->toArray());
 
         throw new HttpResponseException(
             response()->json([
