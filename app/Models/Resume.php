@@ -15,4 +15,12 @@ class Resume extends Model
         'status',
         'extracted_text',
     ];
+
+    /**
+     * Get the analysis associated with the resume.
+     */
+    public function analysis()
+    {
+        return $this->hasOne(ResumeAnalysis::class);
+    }
 }
