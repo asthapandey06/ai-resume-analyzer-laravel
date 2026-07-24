@@ -30,12 +30,9 @@ class ResumeController extends Controller
      */
     public function store(StoreResumeRequest $request)
     {
-        //      Log::info('Resume upload request received.');
+        $file = $request->file('resume');
 
-        // Log::info($request->all());
-       $file = $request->file('resume');
-
-    $path = $file->store('resumes', 'public');
+        $path = $file->store('resumes', 'public');
 
         $resume = Resume::create([
             'original_name' => $file->getClientOriginalName(),
