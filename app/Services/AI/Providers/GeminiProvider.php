@@ -8,29 +8,16 @@ use App\Services\AI\DTO\AIResponse;
 
 class GeminiProvider extends BaseAIProvider implements AIProvider
 {
-    private $providerName = 'gemini';
-    /**
-     * Get the name of the provider.
-     *
-     * @return string
-     */
-    public function name(): string
-    {
-        return $this->providerName;
-    }
+    private const PROVIDER = 'gemini';
     protected function configKey(): string
     {
-        return $this->providerName;
-    }
-    protected function config(): array
-    {
-        return config("ai.providers.{$this->configKey()}");
+        return self::PROVIDER;
     }
 
     private function endpoint(string $model): string
     {
         return sprintf(
-            'https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent',
+            $this->config()['endpoint'],
             $model
         );
     }
@@ -41,7 +28,10 @@ class GeminiProvider extends BaseAIProvider implements AIProvider
                 [
                     'parts' => [
                         [
-                            'text' => $request->prompt,
+                            'text' =>implode("\n\n", [
+                            $request->prompt->system,
+                            $request->prompt->user,
+                        ]),
                         ],
                     ],
                 ],
@@ -62,24 +52,31 @@ class GeminiProvider extends BaseAIProvider implements AIProvider
     }
     public function generate(AIRequest $request): AIResponse
     {
-        $model = $request->model ?: $this->config()['model'];
-        $response = $this->http()
-            ->withQueryParameters([
-                'key' => $this->config()['api_key'],
-            ])
-            ->post(
-                $this->endpoint($model),
-                $this->payload($request),
-            );
+        try {
+            $config = $this->config();
+            $model = $request->model ?: $config['model'];
+            $response = $this->http()
+                ->withQueryParameters([
+                    'key' => $config['api_key'],
+                ])
+                ->post(
+                    $this->endpoint($model),
+                    $this->payload($request),
+                );
 
-        $this->validate($response);
-        $body = $this->body($response);
-        return new AIResponse(
-            provider: $this->name(),
-            model: $model,
-            content: $this->extractContent($body),
-            usage: data_get($body, 'usageMetadata', []),
-            raw: $body,
-        );
+            $this->validate($response);
+            $body = $this->body($response);
+            return new AIResponse(
+                provider: $this->name(),
+                model: $model,
+                content: $this->extractContent($body),
+                usage: data_get($body, 'usageMetadata', []),
+                raw: $body,
+            );
+        } catch (\Exception $e) {
+            throw new \RuntimeException(
+                "Failed to generate AI response for {$this->name()}: " . $e->getMessage(), 0, $e
+            );
+        }
     }
 }

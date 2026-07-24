@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Http;
 abstract class BaseAIProvider
 {
     abstract protected function configKey(): string;
+
+    public function name(): string
+    {
+        return $this->configKey();
+    }
+
     protected function http(): PendingRequest
     {
         return Http::acceptJson()
@@ -26,5 +32,9 @@ abstract class BaseAIProvider
     protected function body(Response $response): array
     {
         return $response->json();
+    }
+    protected function config(): array
+    {
+        return config("ai.providers.{$this->configKey()}");
     }
 }

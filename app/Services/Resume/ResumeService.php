@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Resume;
 
 use App\Models\Resume;
 use Illuminate\Http\UploadedFile;

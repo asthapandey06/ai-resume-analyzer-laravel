@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreResumeRequest;
 
 use App\Models\Resume;
-use App\Services\ResumeService;
+use App\Services\Resume\ResumeService;
 use Illuminate\Http\Request;
 
 class ResumeController extends Controller
