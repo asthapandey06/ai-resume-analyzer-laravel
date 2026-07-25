@@ -3,6 +3,7 @@
 namespace App\Services\Resume;
 
 use App\Models\Resume;
+use App\Services\AI\DTO\Prompt;
 
 class ResumeAnalysisPromptBuilder
 {

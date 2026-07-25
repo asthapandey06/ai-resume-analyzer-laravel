@@ -2,7 +2,6 @@
 
 namespace App\Services\AI\DTO;
 
-use App\Services\Resume\Prompt;
 
 class AIRequest
 {

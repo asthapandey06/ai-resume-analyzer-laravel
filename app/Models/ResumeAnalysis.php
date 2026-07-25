@@ -19,8 +19,16 @@ class ResumeAnalysis extends Model
         'weaknesses',
         'missing_skills',
         'analysis',
+        'recommended_roles',
     ];
 
+    protected $casts = [
+    'strengths' => 'array',
+    'weaknesses' => 'array',
+    'missing_skills' => 'array',
+    'recommended_roles' => 'array',
+    'analysis' => 'array',
+];
     public function resume()
     {
         return $this->belongsTo(Resume::class);

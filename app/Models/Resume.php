@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Resume extends Model
 {
@@ -19,7 +20,7 @@ class Resume extends Model
     /**
      * Get the analysis associated with the resume.
      */
-    public function analysis()
+    public function analysis(): HasOne
     {
         return $this->hasOne(ResumeAnalysis::class);
     }

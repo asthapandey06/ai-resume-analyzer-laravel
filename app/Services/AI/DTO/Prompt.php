@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Resume;
+namespace App\Services\AI\DTO;
 
 final readonly class Prompt
 {

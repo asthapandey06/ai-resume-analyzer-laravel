@@ -9,6 +9,7 @@ use App\Services\AI\AIResponseParser;
 use App\Services\AI\DTO\AIRequest;
 use App\Services\AI\DTO\AIResponse;
 use App\Services\AI\DTO\ResumeAnalysisResult;
+use Illuminate\Support\Facades\DB;
 
 class ResumeAnalysisService
 {
@@ -56,13 +57,23 @@ class ResumeAnalysisService
         Resume $resume,
         ResumeAnalysisResult $result
     ): ResumeAnalysis {
-        return $resume->analysis()->create([
-            'score' => $result->score,
-            'summary' => $result->summary,
-            'strengths' => $result->strengths,
-            'weaknesses' => $result->weaknesses,
-            'missing_skills' => $result->missingSkills,
-            'recommended_roles' => $result->recommendedRoles,
-        ]);
+        try {
+            DB::enableQueryLog();
+
+            return $resume->analysis()->create([
+                'score' => $result->score,
+                'summary' => $result->summary,
+                'strengths' => $result->strengths,
+                'weaknesses' => $result->weaknesses,
+                'missing_skills' => $result->missingSkills,
+                'recommended_roles' => $result->recommendedRoles,
+            ]);
+        } catch (\Throwable $e) {
+            dd([
+                'message' => $e->getMessage(),
+                'exception' => get_class($e),
+                'queryLog' => DB::getQueryLog(),
+            ]);
+        }
     }
 }

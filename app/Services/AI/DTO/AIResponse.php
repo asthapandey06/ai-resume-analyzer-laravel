@@ -6,9 +6,9 @@ class AIResponse
 {
     public function __construct(
         public string $provider,
-        public array $model,
+        public string $model,
         public string $content,
-        public string $usage,
+        public array $usage,
         public array $raw = []
     ) {}
 }

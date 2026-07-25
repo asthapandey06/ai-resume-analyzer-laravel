@@ -16,8 +16,8 @@ class AIServiceProvider extends ServiceProvider
 
             $providers = [];
 
-            foreach (config('ai.providers') as $providerConfig) {
-                $providers[] = $app->make($providerConfig['driver']);
+            foreach (config('ai.providers') as $name =>$providerConfig) {
+                $providers[$name] = $app->make($providerConfig['driver']);
             }
 
             return new AIManager($providers);

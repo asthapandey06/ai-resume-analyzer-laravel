@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Pdf;
 
 use App\Models\Resume;
 use Smalot\PdfParser\Parser;
