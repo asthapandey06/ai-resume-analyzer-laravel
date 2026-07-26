@@ -5,6 +5,7 @@ namespace App\Services\Resume;
 use App\Models\Resume;
 use App\Services\Pdf\PdfExtractionService;
 use Illuminate\Http\UploadedFile;
+use Laravel\Pail\Options;
 use RuntimeException;
 use Throwable;
 
@@ -107,5 +108,37 @@ class ResumeService
 
             throw $e;
         }
+    }
+
+    public function getAll(string $sort, int $limit, int $page, ?array $filters = null): array
+    {
+        // add total number of resumes and total pages to the response
+        $total = Resume::count();
+        $totalPages = ceil($total / $limit);
+
+        $resumes = Resume::query()
+            ->with('analysis')
+            ->orderBy('created_at', $sort)
+            ->limit($limit)
+            ->offset(($page - 1) * $limit)
+            ->get();
+        
+        return [
+            'total' => $total,
+            'total_pages' => $totalPages,
+            'current_page' => $page,
+            'data' => $resumes,
+        ];
+    }
+
+    public function delete(Resume $resume): void
+    {
+        // Delete the file from storage
+        if (file_exists(storage_path('app/public/' . $resume->file_path))) {
+            unlink(storage_path('app/public/' . $resume->file_path));
+        }
+
+        // Delete the resume record from the database
+        $resume->delete();
     }
 }

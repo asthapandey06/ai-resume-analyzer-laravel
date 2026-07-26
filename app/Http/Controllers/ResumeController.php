@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ListResumeRequest;
 use App\Http\Requests\StoreResumeRequest;
 
 use App\Models\Resume;
@@ -17,9 +18,16 @@ class ResumeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(ListResumeRequest $request)
     {
-        //
+        $resumes = $this->resumeService->getAll(
+            $request->get('sort', 'desc'),
+            $request->get('limit', 10),
+            $request->get('page', 1),
+            $request->get('filters', null)
+        );
+
+        return response()->json($resumes);
     }
 
     /**
@@ -50,7 +58,7 @@ class ResumeController extends Controller
      */
     public function show(Resume $resume)
     {
-        //
+        return response()->json($resume->load('analysis'));
     }
 
     /**
@@ -74,6 +82,8 @@ class ResumeController extends Controller
      */
     public function destroy(Resume $resume)
     {
-        //
+        //delete the resume file from storage and the record from the database
+        $this->resumeService->delete($resume);
+        return response()->json(['message' => 'Resume deleted successfully.']);
     }
 }

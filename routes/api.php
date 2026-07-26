@@ -13,3 +13,8 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/resumes', [ResumeController::class, 'store']);
 
+Route::get('/resumes', [ResumeController::class, 'index']);
+
+Route::get('/resumes/{resume}', [ResumeController::class, 'show']);
+
+Route::delete('/resumes/{resume}', [ResumeController::class, 'destroy']);
