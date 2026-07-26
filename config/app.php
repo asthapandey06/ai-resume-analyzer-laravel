@@ -123,4 +123,11 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'adminSeeder' => [
+        'name' => env('SEED_USER_NAME', 'Admin User'),
+        'email' => env('SEED_USER_EMAIL', 'admin@email.com'),
+        'password' => env('SEED_USER_PASSWORD', 'password'),
+        'role' => env('SEED_USER_ROLE', 'Admin')
+    ]
+
 ];

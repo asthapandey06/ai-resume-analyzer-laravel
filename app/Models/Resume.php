@@ -24,4 +24,9 @@ class Resume extends Model
     {
         return $this->hasOne(ResumeAnalysis::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

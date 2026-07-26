@@ -2,9 +2,11 @@
 
 namespace App\Services\Resume;
 
+use App\Jobs\ResumeAnalysisJob;
 use App\Models\Resume;
 use App\Services\Pdf\PdfExtractionService;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Laravel\Pail\Options;
 use RuntimeException;
 use Throwable;
@@ -35,13 +37,45 @@ class ResumeService
      */
     public function upload(UploadedFile $file): Resume
     {
+        Log::info('Upload started');
         $resume = $this->storeResume($file);
+Log::info('Resume stored');
+        //call the extractResumeText and analyzeResume methods asynchronously using a job
+        ResumeAnalysisJob::dispatch($resume);
+Log::info('Job dispatched');
+        // $this->extractResumeText($resume);
 
-        $this->extractResumeText($resume);
-
-        $this->analyzeResume($resume);
+        // $this->analyzeResume($resume);
 
         return $resume->load('analysis');
+    }
+
+    public function processResume(Resume $resume): void
+    {
+        logger('Job started', ['resume_id' => $resume->id]);
+        $text = $this->pdfExtractionService->extract($resume);
+
+        if (blank($text)) {
+            $resume->update([
+                'status' => ResumeStatus::Failed->value,
+            ]);
+
+            throw new RuntimeException('No text could be extracted.');
+        }
+ logger('PDF extracted', [
+        'length' => strlen($text)
+    ]);
+        $resume->update([
+            'extracted_text' => $text,
+            'status' => ResumeStatus::Analyzing->value,
+        ]);
+logger('Calling AI analysis');
+        $this->resumeAnalysisService->analyze($resume);
+logger('AI analysis finished');
+        $resume->update([
+            'status' => ResumeStatus::Completed->value,
+        ]);
+        logger('Job completed');
     }
 
     /**
@@ -52,9 +86,12 @@ class ResumeService
      */
     private function storeResume(UploadedFile $file): Resume
     {
+        $start = microtime(true);
         $path = $file->store('resumes', 'public');
-
-        return Resume::create([
+        logger('File store: ' . round((microtime(true) - $start) * 1000, 2) . ' ms');
+        $start = microtime(true);
+        logger('File size: ' . round($file->getSize() / 1024, 2) . ' KB');
+        $resume = Resume::create([
             'original_name' => $file->getClientOriginalName(),
             'stored_name'   => basename($path),
             'file_path'     => $path,
@@ -62,6 +99,8 @@ class ResumeService
             'file_size'     => $file->getSize(),
             'status'        => ResumeStatus::Uploaded->value,
         ]);
+        logger('DB insert: ' . round((microtime(true) - $start) * 1000, 2) . ' ms');
+        return $resume;
     }
     /**
      * Extract text from the resume.
@@ -95,7 +134,7 @@ class ResumeService
     {
         try {
 
-            $this->resumeAnalysisService->analyze($resume);
+            $this->resumeAnalysisService->analyze($resume); //instead of this, we will dispatch a job to handle the analysis asynchronously
 
             $resume->update([
                 'status' => ResumeStatus::Completed->value,
@@ -122,7 +161,7 @@ class ResumeService
             ->limit($limit)
             ->offset(($page - 1) * $limit)
             ->get();
-        
+
         return [
             'total' => $total,
             'total_pages' => $totalPages,

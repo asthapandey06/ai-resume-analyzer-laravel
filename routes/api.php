@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\HelloController;
 use App\Http\Controllers\ResumeController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/hello', [HelloController::class, 'index']);
+Route::post('/login', [UserController::class, 'login']);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
